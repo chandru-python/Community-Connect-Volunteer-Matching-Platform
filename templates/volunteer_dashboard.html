@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Volunteer Dashboard – Community Connect{% endblock %}
+
+{% block content %}
+<section class="dashboard-section">
+  <div class="container py-4">
+
+    <!-- Page Header -->
+    <div class="dashboard-header mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <div class="avatar-circle">{{ user.name[0].upper() }}</div>
+        <div>
+          <h2 class="mb-0">Hello, {{ user.name.split()[0] }}! 👋</h2>
+          <p class="text-muted mb-0">Here's your volunteering overview</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+      <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-blue">
+          <div class="stat-card-icon"><i class="bi bi-file-earmark-text"></i></div>
+          <div class="stat-card-value">{{ total_applied }}</div>
+          <div class="stat-card-label">Total Applied</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-green">
+          <div class="stat-card-icon"><i class="bi bi-check-circle"></i></div>
+          <div class="stat-card-value">{{ accepted_count }}</div>
+          <div class="stat-card-label">Accepted</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-orange">
+          <div class="stat-card-icon"><i class="bi bi-hourglass-split"></i></div>
+          <div class="stat-card-value">{{ pending_count }}</div>
+          <div class="stat-card-label">Pending</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-purple">
+          <div class="stat-card-icon"><i class="bi bi-heart"></i></div>
+          <div class="stat-card-value">{{ total_applied - accepted_count - pending_count }}</div>
+          <div class="stat-card-label">Reviewed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Profile Card -->
+      <div class="col-lg-4">
+        <div class="cc-card h-100">
+          <div class="cc-card-header">
+            <i class="bi bi-person-badge me-2"></i>My Profile
+          </div>
+          <div class="cc-card-body">
+            <div class="profile-info">
+              <div class="profile-avatar-lg text-center mb-3">
+                <div class="avatar-circle avatar-circle-lg">{{ user.name[0].upper() }}</div>
+                <h5 class="mt-2 mb-0">{{ user.name }}</h5>
+                <span class="role-badge role-volunteer">Volunteer</span>
+              </div>
+              <ul class="profile-details list-unstyled">
+                <li><i class="bi bi-envelope"></i><span>{{ user.email }}</span></li>
+                {% if user.phone %}
+                  <li><i class="bi bi-telephone"></i><span>{{ user.phone }}</span></li>
+                {% endif %}
+                <li><i class="bi bi-person-check"></i><span>Active Member</span></li>
+              </ul>
+            </div>
+            <a href="{{ url_for('projects') }}" class="btn cc-btn-primary w-100 mt-3">
+              <i class="bi bi-search me-2"></i>Browse Projects
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Applications -->
+      <div class="col-lg-8">
+        <div class="cc-card h-100">
+          <div class="cc-card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-clock-history me-2"></i>Recent Applications</span>
+            <a href="{{ url_for('applications') }}" class="btn btn-sm cc-btn-outline">View All</a>
+          </div>
+          <div class="cc-card-body p-0">
+            {% if recent_apps %}
+              <div class="table-responsive">
+                <table class="table cc-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Project</th>
+                      <th>Applied</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for app in recent_apps %}
+                    <tr>
+                      <td>
+                        <span class="fw-semibold">{{ app.project.title }}</span>
+                        <small class="d-block text-muted"><i class="bi bi-geo-alt me-1"></i>{{ app.project.location or 'Remote' }}</small>
+                      </td>
+                      <td class="text-muted small">{{ app.applied_date.strftime('%b %d') }}</td>
+                      <td>
+                        <span class="status-badge status-{{ app.status.lower() }}">
+                          {% if app.status == 'Accepted' %}<i class="bi bi-check-circle-fill me-1"></i>
+                          {% elif app.status == 'Rejected' %}<i class="bi bi-x-circle-fill me-1"></i>
+                          {% else %}<i class="bi bi-hourglass me-1"></i>{% endif %}
+                          {{ app.status }}
+                        </span>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="empty-state py-5 text-center">
+                <i class="bi bi-journal-x empty-icon"></i>
+                <p class="mt-3 text-muted">No applications yet.</p>
+                <a href="{{ url_for('projects') }}" class="btn cc-btn-primary btn-sm">Find a Project</a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-3 mt-2">
+      <div class="col-12">
+        <h6 class="text-muted fw-semibold mb-3 text-uppercase small ls-wide">Quick Actions</h6>
+      </div>
+      <div class="col-6 col-md-3">
+        <a href="{{ url_for('projects') }}" class="quick-action-card text-center d-block">
+          <i class="bi bi-grid-1x2"></i>
+          <span>All Projects</span>
+        </a>
+      </div>
+      <div class="col-6 col-md-3">
+        <a href="{{ url_for('applications') }}" class="quick-action-card text-center d-block">
+          <i class="bi bi-file-earmark-check"></i>
+          <span>My Applications</span>
+        </a>
+      </div>
+      <div class="col-6 col-md-3">
+        <a href="{{ url_for('projects') }}?search=" class="quick-action-card text-center d-block">
+          <i class="bi bi-search-heart"></i>
+          <span>Search</span>
+        </a>
+      </div>
+      <div class="col-6 col-md-3">
+        <a href="{{ url_for('logout') }}" class="quick-action-card quick-action-danger text-center d-block">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

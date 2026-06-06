@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}My Applications – Community Connect{% endblock %}
+
+{% block content %}
+<section class="dashboard-section">
+  <div class="container py-4">
+
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+      <div>
+        <h2 class="mb-0"><i class="bi bi-file-earmark-check me-2 text-primary"></i>My Applications</h2>
+        <p class="text-muted mb-0">Track the status of all your volunteer applications</p>
+      </div>
+      <a href="{{ url_for('projects') }}" class="btn cc-btn-primary">
+        <i class="bi bi-search me-2"></i>Find More Projects
+      </a>
+    </div>
+
+    <!-- Status Summary -->
+    {% if applications %}
+    <div class="row g-3 mb-4">
+      {% set pending = applications | selectattr('status', 'equalto', 'Pending') | list %}
+      {% set accepted = applications | selectattr('status', 'equalto', 'Accepted') | list %}
+      {% set rejected = applications | selectattr('status', 'equalto', 'Rejected') | list %}
+      <div class="col-4">
+        <div class="mini-stat mini-stat-orange">
+          <span class="mini-stat-value">{{ pending|length }}</span>
+          <span class="mini-stat-label">Pending</span>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="mini-stat mini-stat-green">
+          <span class="mini-stat-value">{{ accepted|length }}</span>
+          <span class="mini-stat-label">Accepted</span>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="mini-stat mini-stat-red">
+          <span class="mini-stat-value">{{ rejected|length }}</span>
+          <span class="mini-stat-label">Rejected</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="cc-card">
+      <div class="cc-card-body p-0">
+        {% if applications %}
+          <div class="table-responsive">
+            <table class="table cc-table mb-0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Project</th>
+                  <th>Organizer</th>
+                  <th>Location</th>
+                  <th>Applied On</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for app in applications %}
+                <tr class="app-row">
+                  <td class="text-muted small">{{ loop.index }}</td>
+                  <td>
+                    <span class="fw-semibold">{{ app.project.title }}</span>
+                    {% if app.project.skills %}
+                      <div class="mt-1">
+                        {% for skill in app.project.skills.split(',')[:2] %}
+                          <span class="skill-tag skill-tag-sm">{{ skill.strip() }}</span>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </td>
+                  <td class="text-muted">{{ app.project.organizer.name }}</td>
+                  <td class="text-muted small">
+                    <i class="bi bi-geo-alt me-1"></i>{{ app.project.location or 'Remote' }}
+                  </td>
+                  <td class="text-muted small">{{ app.applied_date.strftime('%b %d, %Y') }}</td>
+                  <td>
+                    <span class="status-badge status-{{ app.status.lower() }}">
+                      {% if app.status == 'Accepted' %}
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                      {% elif app.status == 'Rejected' %}
+                        <i class="bi bi-x-circle-fill me-1"></i>
+                      {% else %}
+                        <i class="bi bi-hourglass-split me-1"></i>
+                      {% endif %}
+                      {{ app.status }}
+                    </span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state text-center py-6">
+            <i class="bi bi-journal-x empty-icon"></i>
+            <h5 class="mt-3">No applications yet</h5>
+            <p class="text-muted">You haven't applied to any projects. Start exploring!</p>
+            <a href="{{ url_for('projects') }}" class="btn cc-btn-primary">
+              <i class="bi bi-search me-2"></i>Browse Projects
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

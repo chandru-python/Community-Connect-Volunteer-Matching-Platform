@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}Community Connect – Volunteer Matching Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="cc-hero">
+  <div class="hero-bg-shapes">
+    <span class="shape shape-1"></span>
+    <span class="shape shape-2"></span>
+    <span class="shape shape-3"></span>
+  </div>
+  <div class="container position-relative">
+    <div class="row align-items-center min-vh-75">
+      <div class="col-lg-7 hero-content">
+        <span class="hero-badge mb-3 d-inline-flex align-items-center gap-2">
+          <i class="bi bi-stars"></i> Volunteer Matching Platform
+        </span>
+        <h1 class="hero-title">Make a <span class="hero-highlight">Difference</span><br>in Your Community</h1>
+        <p class="hero-subtitle">Connect passionate volunteers with meaningful projects. Whether you want to give your time or find dedicated helpers, Community Connect brings people together for a better tomorrow.</p>
+        <div class="hero-cta d-flex flex-wrap gap-3">
+          {% if not session.get('user_id') %}
+            <a href="{{ url_for('register') }}" class="btn cc-btn-primary btn-lg">
+              <i class="bi bi-person-plus me-2"></i>Get Started Free
+            </a>
+            <a href="{{ url_for('login') }}" class="btn cc-btn-outline btn-lg">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            </a>
+          {% else %}
+            {% if session.get('role') == 'volunteer' %}
+              <a href="{{ url_for('projects') }}" class="btn cc-btn-primary btn-lg">
+                <i class="bi bi-search me-2"></i>Browse Projects
+              </a>
+            {% else %}
+              <a href="{{ url_for('add_project') }}" class="btn cc-btn-primary btn-lg">
+                <i class="bi bi-plus-circle me-2"></i>Post a Project
+              </a>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-5 d-none d-lg-flex justify-content-end">
+        <div class="hero-illustration">
+          <div class="hero-card floating-card card-1">
+            <i class="bi bi-people-fill"></i>
+            <span>{{ total_volunteers }}+ Volunteers</span>
+          </div>
+          <div class="hero-card floating-card card-2">
+            <i class="bi bi-journal-check"></i>
+            <span>{{ total_projects }}+ Projects</span>
+          </div>
+          <div class="hero-card floating-card card-3">
+            <i class="bi bi-heart-fill"></i>
+            <span>{{ accepted }}+ Matched</span>
+          </div>
+          <div class="hero-main-visual">
+            <i class="bi bi-globe-americas"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Strip -->
+<section class="stats-strip">
+  <div class="container">
+    <div class="row g-0">
+      <div class="col-6 col-md-3 stat-item text-center">
+        <span class="stat-number" data-target="{{ total_volunteers }}">0</span>
+        <span class="stat-label">Volunteers</span>
+      </div>
+      <div class="col-6 col-md-3 stat-item text-center">
+        <span class="stat-number" data-target="{{ total_projects }}">0</span>
+        <span class="stat-label">Active Projects</span>
+      </div>
+      <div class="col-6 col-md-3 stat-item text-center">
+        <span class="stat-number" data-target="{{ total_applications }}">0</span>
+        <span class="stat-label">Applications</span>
+      </div>
+      <div class="col-6 col-md-3 stat-item text-center">
+        <span class="stat-number" data-target="{{ accepted }}">0</span>
+        <span class="stat-label">Successful Matches</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-section py-6">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <span class="section-tag">Simple Process</span>
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-subtitle">Three easy steps to start making a difference</p>
+    </div>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4">
+        <div class="how-card text-center">
+          <div class="how-icon how-icon-1"><i class="bi bi-person-plus"></i></div>
+          <div class="how-step">01</div>
+          <h4>Register</h4>
+          <p>Sign up as a volunteer or project organizer in under a minute. No fees, no hassle.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="how-card text-center">
+          <div class="how-icon how-icon-2"><i class="bi bi-search-heart"></i></div>
+          <div class="how-step">02</div>
+          <h4>Discover</h4>
+          <p>Browse projects filtered by location and skills, or post your own opportunity.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="how-card text-center">
+          <div class="how-icon how-icon-3"><i class="bi bi-handshake"></i></div>
+          <div class="how-step">03</div>
+          <h4>Connect</h4>
+          <p>Apply and get matched. Organizers review and accept volunteers directly on the platform.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Recent Projects -->
+{% if recent_projects %}
+<section class="recent-projects-section py-6 bg-light-soft">
+  <div class="container">
+    <div class="section-header d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <span class="section-tag">Latest Opportunities</span>
+        <h2 class="section-title mb-0">Recent Projects</h2>
+      </div>
+      {% if session.get('role') == 'volunteer' %}
+        <a href="{{ url_for('projects') }}" class="btn cc-btn-outline btn-sm">View All <i class="bi bi-arrow-right ms-1"></i></a>
+      {% endif %}
+    </div>
+    <div class="row g-4">
+      {% for project in recent_projects %}
+      <div class="col-md-6 col-lg-4">
+        <div class="project-card h-100">
+          <div class="project-card-body">
+            <div class="project-meta d-flex justify-content-between align-items-start mb-2">
+              <span class="project-location"><i class="bi bi-geo-alt me-1"></i>{{ project.location or 'Remote' }}</span>
+              <span class="project-badge">Open</span>
+            </div>
+            <h5 class="project-title">{{ project.title }}</h5>
+            <p class="project-desc">{{ project.description[:120] }}{% if project.description|length > 120 %}…{% endif %}</p>
+            {% if project.skills %}
+              <div class="skill-tags">
+                {% for skill in project.skills.split(',')[:3] %}
+                  <span class="skill-tag">{{ skill.strip() }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <div class="project-footer mt-3 d-flex justify-content-between align-items-center">
+              <small class="text-muted">
+                {% if project.start_date %}<i class="bi bi-calendar3 me-1"></i>{{ project.start_date.strftime('%b %d, %Y') }}{% endif %}
+              </small>
+              <span class="project-organizer"><i class="bi bi-person me-1"></i>{{ project.organizer.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- About Section -->
+<section class="about-section py-6">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-5">
+        <div class="about-visual">
+          <div class="about-graphic">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <div class="about-accent-box">
+            <i class="bi bi-award-fill"></i>
+            <span>Trusted Platform</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <span class="section-tag">About Us</span>
+        <h2 class="section-title">Empowering Communities<br>Through Volunteering</h2>
+        <p class="about-text">Community Connect is a platform built to bridge the gap between skilled volunteers and organizations that need their help. We believe that every individual has something valuable to offer, and every community project deserves the right support.</p>
+        <ul class="about-features">
+          <li><i class="bi bi-check-circle-fill"></i> Free to use for volunteers and organizers</li>
+          <li><i class="bi bi-check-circle-fill"></i> Skill-based project matching</li>
+          <li><i class="bi bi-check-circle-fill"></i> Transparent application tracking</li>
+          <li><i class="bi bi-check-circle-fill"></i> Trusted community of changemakers</li>
+        </ul>
+        {% if not session.get('user_id') %}
+          <a href="{{ url_for('register') }}" class="btn cc-btn-primary mt-2">Join the Community</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Banner -->
+{% if not session.get('user_id') %}
+<section class="cta-section">
+  <div class="container text-center">
+    <h2 class="cta-title">Ready to Make an Impact?</h2>
+    <p class="cta-subtitle">Join thousands of volunteers already making a difference.</p>
+    <div class="d-flex justify-content-center gap-3 flex-wrap mt-4">
+      <a href="{{ url_for('register') }}" class="btn btn-light btn-lg cta-btn-main">
+        <i class="bi bi-person-plus me-2"></i>Sign Up as Volunteer
+      </a>
+      <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg">
+        <i class="bi bi-building me-2"></i>Post a Project
+      </a>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

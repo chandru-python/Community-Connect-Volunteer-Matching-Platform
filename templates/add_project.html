@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if project else 'Add' }} Project – Community Connect{% endblock %}
+
+{% block content %}
+<section class="dashboard-section">
+  <div class="container py-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+          <ol class="breadcrumb cc-breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('organizer_dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item active">{{ 'Edit Project' if project else 'New Project' }}</li>
+          </ol>
+        </nav>
+
+        <div class="cc-card">
+          <div class="cc-card-header">
+            <i class="bi bi-{{ 'pencil-square' if project else 'plus-circle' }} me-2"></i>
+            {{ 'Edit Project' if project else 'Create New Project' }}
+          </div>
+          <div class="cc-card-body">
+            <form method="POST" action="{{ url_for('add_project') }}" id="projectForm">
+              {% if project %}
+                <input type="hidden" name="project_id" value="{{ project.id }}">
+              {% endif %}
+
+              <div class="row g-4">
+                <div class="col-12">
+                  <label for="title" class="form-label fw-semibold">Project Title <span class="text-danger">*</span></label>
+                  <div class="input-group cc-input-group">
+                    <span class="input-group-text"><i class="bi bi-journal-text"></i></span>
+                    <input type="text" class="form-control" id="title" name="title"
+                           placeholder="Give your project a clear, compelling title"
+                           value="{{ project.title if project else '' }}" required>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <label for="description" class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
+                  <textarea class="form-control cc-textarea" id="description" name="description"
+                            rows="5" placeholder="Describe the project, its goals, what volunteers will be doing..."
+                            required>{{ project.description if project else '' }}</textarea>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="skills" class="form-label fw-semibold">Required Skills</label>
+                  <div class="input-group cc-input-group">
+                    <span class="input-group-text"><i class="bi bi-tools"></i></span>
+                    <input type="text" class="form-control" id="skills" name="skills"
+                           placeholder="e.g. Teaching, Python, Gardening"
+                           value="{{ project.skills if project else '' }}">
+                  </div>
+                  <div class="form-text">Separate multiple skills with commas</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="location" class="form-label fw-semibold">Location</label>
+                  <div class="input-group cc-input-group">
+                    <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                    <input type="text" class="form-control" id="location" name="location"
+                           placeholder="City, State or Remote"
+                           value="{{ project.location if project else '' }}">
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="start_date" class="form-label fw-semibold">Start Date</label>
+                  <div class="input-group cc-input-group">
+                    <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    <input type="date" class="form-control" id="start_date" name="start_date"
+                           value="{{ project.start_date.strftime('%Y-%m-%d') if project and project.start_date else '' }}">
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="end_date" class="form-label fw-semibold">End Date</label>
+                  <div class="input-group cc-input-group">
+                    <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                    <input type="date" class="form-control" id="end_date" name="end_date"
+                           value="{{ project.end_date.strftime('%Y-%m-%d') if project and project.end_date else '' }}">
+                  </div>
+                </div>
+
+                <!-- Skills preview -->
+                <div class="col-12" id="skillPreviewWrapper" style="display:none;">
+                  <label class="form-label text-muted small">Skills Preview</label>
+                  <div id="skillPreview" class="d-flex flex-wrap gap-2"></div>
+                </div>
+              </div>
+
+              <div class="d-flex gap-3 mt-5">
+                <button type="submit" class="btn cc-btn-primary btn-lg flex-grow-1">
+                  <i class="bi bi-{{ 'check-circle' if project else 'plus-circle' }} me-2"></i>
+                  {{ 'Save Changes' if project else 'Create Project' }}
+                </button>
+                <a href="{{ url_for('organizer_dashboard') }}" class="btn btn-outline-secondary btn-lg">
+                  Cancel
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Live skill tag preview
+const skillsInput = document.getElementById('skills');
+const previewWrapper = document.getElementById('skillPreviewWrapper');
+const previewEl = document.getElementById('skillPreview');
+
+function updateSkillPreview() {
+  const raw = skillsInput.value.trim();
+  if (!raw) { previewWrapper.style.display = 'none'; return; }
+  const tags = raw.split(',').map(s => s.trim()).filter(Boolean);
+  previewWrapper.style.display = '';
+  previewEl.innerHTML = tags.map(t => `<span class="skill-tag">${t}</span>`).join('');
+}
+skillsInput.addEventListener('input', updateSkillPreview);
+updateSkillPreview();
+</script>
+{% endblock %}

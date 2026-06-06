@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Browse Projects – Community Connect{% endblock %}
+
+{% block content %}
+<section class="dashboard-section">
+  <div class="container py-4">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+      <div>
+        <h2 class="mb-0"><i class="bi bi-grid-1x2 me-2 text-primary"></i>Browse Projects</h2>
+        <p class="text-muted mb-0">Discover opportunities to make a difference</p>
+      </div>
+      <span class="badge cc-badge-count">{{ projects|length }} project{{ 's' if projects|length != 1 }}</span>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="cc-card mb-4">
+      <div class="cc-card-body">
+        <form method="GET" action="{{ url_for('projects') }}" id="searchForm">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+              <label class="form-label small text-muted">Search by title</label>
+              <div class="input-group cc-input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" name="search"
+                       placeholder="e.g. 'Teaching', 'Tree planting'…"
+                       value="{{ search }}">
+                {% if search %}
+                  <button class="btn btn-outline-secondary" type="button"
+                          onclick="window.location.href='{{ url_for('projects') }}'">
+                    <i class="bi bi-x"></i>
+                  </button>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small text-muted">Filter by location</label>
+              <div class="input-group cc-input-group">
+                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                <select class="form-select" name="location">
+                  <option value="">All Locations</option>
+                  {% for loc in locations %}
+                    <option value="{{ loc }}" {{ 'selected' if loc == location }}>{{ loc }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn cc-btn-primary w-100">
+                <i class="bi bi-funnel me-1"></i>Filter
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Results -->
+    {% if projects %}
+      <div class="row g-4" id="projectsGrid">
+        {% for project in projects %}
+        <div class="col-md-6 col-lg-4">
+          <div class="project-card h-100">
+            <div class="project-card-body d-flex flex-column">
+              <div class="project-meta d-flex justify-content-between align-items-start mb-2">
+                <span class="project-location"><i class="bi bi-geo-alt me-1"></i>{{ project.location or 'Remote' }}</span>
+                {% if project.id in applied_ids %}
+                  <span class="project-badge badge-applied">Applied</span>
+                {% else %}
+                  <span class="project-badge">Open</span>
+                {% endif %}
+              </div>
+
+              <h5 class="project-title flex-grow-0">{{ project.title }}</h5>
+              <p class="project-desc flex-grow-1">{{ project.description[:150] }}{% if project.description|length > 150 %}…{% endif %}</p>
+
+              {% if project.skills %}
+                <div class="skill-tags mb-3">
+                  {% for skill in project.skills.split(',')[:4] %}
+                    <span class="skill-tag">{{ skill.strip() }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              <div class="project-dates text-muted small mb-3">
+                {% if project.start_date %}
+                  <i class="bi bi-calendar3 me-1"></i>
+                  {{ project.start_date.strftime('%b %d') }}
+                  {% if project.end_date %} – {{ project.end_date.strftime('%b %d, %Y') }}{% endif %}
+                {% endif %}
+              </div>
+
+              <div class="project-footer d-flex justify-content-between align-items-center pt-3 border-top">
+                <span class="project-organizer">
+                  <i class="bi bi-person-circle me-1"></i>{{ project.organizer.name }}
+                </span>
+                {% if project.id in applied_ids %}
+                  <button class="btn btn-sm btn-secondary" disabled>
+                    <i class="bi bi-check me-1"></i>Applied
+                  </button>
+                {% else %}
+               <form method="POST" action="{{ url_for('apply', project_id=project.id) }}">
+    <input type="submit" value="TEST APPLY">
+</form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state text-center py-6">
+        <i class="bi bi-search empty-icon"></i>
+        <h5 class="mt-3">No projects found</h5>
+        <p class="text-muted">Try adjusting your search or filter criteria.</p>
+        <a href="{{ url_for('projects') }}" class="btn cc-btn-outline">Clear Filters</a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}
